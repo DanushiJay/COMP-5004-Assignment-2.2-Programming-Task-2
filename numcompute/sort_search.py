@@ -44,7 +44,7 @@ def stable_sort(a, axis=-1):
 
     Returns
     -------
-    sorted_array :ndarray, same shape and dtype as ``a``
+    sorted_array : ndarray, same shape and dtype as ``a``
         A sorted copy. NaNs are placed last.
 
     Raises

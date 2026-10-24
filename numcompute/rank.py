@@ -135,8 +135,6 @@ def percentile(data, q, interpolation="linear"):
         raise ValueError("Expected every q in [0, 100]")
 
     a = np.sort(a.astype(np.float64))
-    # Multiply before dividing: q * (n - 1) is exact for whole-number q, so a
-    # position that should be an integer is one (0.07 * 100 would not be 7).
     pos = q * (n - 1) / 100.0
     lo = np.floor(pos).astype(np.intp)
     hi = np.ceil(pos).astype(np.intp)
