@@ -105,6 +105,16 @@ def test_histogram_counts_edges_and_closed_last_bin():
     assert counts.tolist() == [1, 2]
 
 
+def test_histogram_density_and_range():
+    # 5 values in bins of width 1: density is count / (5 * 1).
+    density, _ = stats.histogram([0, 1, 1, 2, 4], bins=4, density=True)
+    assert density.tolist() == pytest.approx([0.2, 0.4, 0.2, 0.2])
+    # Values outside the given range (5 and 10) are not counted.
+    counts, edges = stats.histogram([0, 1, 5, 10], bins=2, range=(0, 4))
+    assert edges.tolist() == [0.0, 2.0, 4.0]
+    assert counts.tolist() == [2, 0]
+
+
 def test_histogram_nan_and_empty_input():
     counts, edges = stats.histogram([0.0, NAN, 4.0, NAN], bins=2)
     assert edges.tolist() == [0.0, 2.0, 4.0]

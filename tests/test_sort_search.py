@@ -31,6 +31,17 @@ def test_multi_key_sort_orders_by_primary_then_secondary_key():
         multi_key_sort(table, [3])  # there is no column 3
 
 
+def test_multi_key_sort_negative_and_invalid_keys():
+    table = np.array([[2, 9, 0], [1, 5, 1], [2, 3, 2], [1, 5, 3], [1, 4, 4]])
+    # -2 is the score column: scores 9, 5, 3, 5, 4 sort to rows 2, 4, 1, 3, 0.
+    _, order = multi_key_sort(table, -2, return_indices=True)
+    assert order.tolist() == [2, 4, 1, 3, 0]
+    with pytest.raises(TypeError, match="integer"):
+        multi_key_sort(table, [0.5])
+    with pytest.raises(ValueError, match="at least one"):
+        multi_key_sort(table, [])
+
+
 def test_topk_returns_values_and_indices_best_first():
     values = [5, 1, 9, 3, 9, 2]  # the 9 is duplicated
     top, idx = topk(values, 3)
@@ -93,6 +104,16 @@ def test_binary_search_found_and_not_found():
     assert binary_search(data, 4) == (4, False)  # belongs between 3 and 7
     assert binary_search(data, 0) == (0, False)  # before everything
     assert binary_search(data, 10) == (6, False)  # after everything
+
+
+def test_binary_search_array_of_values_keeps_shape():
+    data = [1, 3, 3, 3, 7, 9]
+    index, exists = binary_search(data, [3, 4, 0, 10])
+    np.testing.assert_array_equal(index, [1, 4, 0, 6])
+    np.testing.assert_array_equal(exists, [True, False, False, False])
+    index, exists = binary_search(data, [[1, 9], [2, 8]])  # shape (2, 2)
+    np.testing.assert_array_equal(index, [[0, 5], [1, 5]])
+    np.testing.assert_array_equal(exists, [[True, True], [False, False]])
 
 
 def test_empty_arrays():
