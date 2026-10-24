@@ -1,5 +1,4 @@
 import numpy as np
-import numpy as np
 
 __all__ = [
     "as_float_array",
