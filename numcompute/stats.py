@@ -78,8 +78,12 @@ def mean(x, axis=None, nan_policy="propagate"):
     Returns
     -------
     float or ndarray
-        Scalar for ``axis=None``; shape ``(n_features,)`` for ``axis=0``;
-        shape ``(n_samples,)`` for ``axis=1``. A 1-D input gives a scalar.
+
+    Shapes
+    ------
+    ``x`` is ``(n,)`` or ``(n_samples, n_features)``. Output is a scalar for
+    ``axis=None`` or 1-D input, ``(n_features,)`` for ``axis=0`` and
+    ``(n_samples,)`` for ``axis=1``.
 
     Raises
     ------
@@ -91,7 +95,7 @@ def mean(x, axis=None, nan_policy="propagate"):
 
     Notes
     -----
-    Time O(n) for n elements; space O(1) beyond the output (O(n) under 'omit').
+    Time O(n); space O(1) extra, or O(n) with 'omit'.
     """
     return _reduce(x, axis, nan_policy, np.mean, np.nanmean)
 
@@ -113,8 +117,12 @@ def median(x, axis=None, nan_policy="propagate"):
     Returns
     -------
     float or ndarray
-        Scalar for ``axis=None``; shape ``(n_features,)`` for ``axis=0``;
-        shape ``(n_samples,)`` for ``axis=1``. A 1-D input gives a scalar.
+
+    Shapes
+    ------
+    ``x`` is ``(n,)`` or ``(n_samples, n_features)``. Output is a scalar for
+    ``axis=None`` or 1-D input, ``(n_features,)`` for ``axis=0`` and
+    ``(n_samples,)`` for ``axis=1``.
 
     Raises
     ------
@@ -151,9 +159,13 @@ def var(x, axis=None, ddof=0, nan_policy="propagate"):
     Returns
     -------
     float or ndarray
-        Scalar for ``axis=None``; shape ``(n_features,)`` for ``axis=0``;
-        shape ``(n_samples,)`` for ``axis=1``. A 1-D input gives a scalar.
         A slice with ``N <= ddof`` gives NaN.
+
+    Shapes
+    ------
+    ``x`` is ``(n,)`` or ``(n_samples, n_features)``. Output is a scalar for
+    ``axis=None`` or 1-D input, ``(n_features,)`` for ``axis=0`` and
+    ``(n_samples,)`` for ``axis=1``.
 
     Raises
     ------
@@ -190,9 +202,13 @@ def std(x, axis=None, ddof=0, nan_policy="propagate"):
     Returns
     -------
     float or ndarray
-        Scalar for ``axis=None``; shape ``(n_features,)`` for ``axis=0``;
-        shape ``(n_samples,)`` for ``axis=1``. A 1-D input gives a scalar.
         A slice with ``N <= ddof`` gives NaN.
+
+    Shapes
+    ------
+    ``x`` is ``(n,)`` or ``(n_samples, n_features)``. Output is a scalar for
+    ``axis=None`` or 1-D input, ``(n_features,)`` for ``axis=0`` and
+    ``(n_samples,)`` for ``axis=1``.
 
     Raises
     ------
@@ -226,8 +242,12 @@ def min(x, axis=None, nan_policy="propagate"):
     Returns
     -------
     float or ndarray
-        Scalar for ``axis=None``; shape ``(n_features,)`` for ``axis=0``;
-        shape ``(n_samples,)`` for ``axis=1``. A 1-D input gives a scalar.
+
+    Shapes
+    ------
+    ``x`` is ``(n,)`` or ``(n_samples, n_features)``. Output is a scalar for
+    ``axis=None`` or 1-D input, ``(n_features,)`` for ``axis=0`` and
+    ``(n_samples,)`` for ``axis=1``.
 
     Raises
     ------
@@ -239,7 +259,7 @@ def min(x, axis=None, nan_policy="propagate"):
 
     Notes
     -----
-    Time O(n); space O(1) beyond the output (O(n) under 'omit').
+    Time O(n); space O(1) extra, or O(n) with 'omit'.
     """
     return _reduce(x, axis, nan_policy, np.min, np.nanmin)
 
@@ -261,8 +281,12 @@ def max(x, axis=None, nan_policy="propagate"):
     Returns
     -------
     float or ndarray
-        Scalar for ``axis=None``; shape ``(n_features,)`` for ``axis=0``;
-        shape ``(n_samples,)`` for ``axis=1``. A 1-D input gives a scalar.
+
+    Shapes
+    ------
+    ``x`` is ``(n,)`` or ``(n_samples, n_features)``. Output is a scalar for
+    ``axis=None`` or 1-D input, ``(n_features,)`` for ``axis=0`` and
+    ``(n_samples,)`` for ``axis=1``.
 
     Raises
     ------
@@ -274,7 +298,7 @@ def max(x, axis=None, nan_policy="propagate"):
 
     Notes
     -----
-    Time O(n); space O(1) beyond the output (O(n) under 'omit').
+    Time O(n); space O(1) extra, or O(n) with 'omit'.
     """
     return _reduce(x, axis, nan_policy, np.max, np.nanmax)
 
@@ -286,24 +310,27 @@ def quantile(x, q, axis=None, nan_policy="propagate"):
     ----------
     x : array_like, shape (n,) or (n_samples, n_features)
     q : float or array_like of float, shape () or (n_q,)
-        Quantile(s) in ``[0, 1]``. Note the scale: ``quantile(x, 0.25)``
-        equals ``rank.percentile(x, 25)``.
+        Quantile(s) in ``[0, 1]``, so ``quantile(x, 0.25)`` equals
+        ``rank.percentile(x, 25)``.
     axis : {None, 0, 1}, default None
         ``axis=0`` reduces over the samples (one result per feature),
         ``axis=1`` reduces over the features (one result per sample),
         ``None`` reduces over every element.
     nan_policy : {'propagate', 'omit', 'raise'}, default 'propagate'
-        'propagate' returns NaN for any slice containing NaN; 'omit' computes
-        the quantile over the non-NaN values only (an all-NaN slice gives
-        NaN); 'raise' raises on any NaN.
+        'propagate' returns NaN for any slice containing NaN; 'omit' ignores
+        NaNs (an all-NaN slice gives NaN); 'raise' raises on any NaN.
 
     Returns
     -------
     float or ndarray
-        Scalar ``q`` gives a scalar for ``axis=None``, shape ``(n_features,)``
-        with ``axis=0`` and shape ``(n_samples,)`` with ``axis=1``. A ``q`` of
-        shape ``(n_q,)`` adds a leading axis: ``(n_q,)`` for ``axis=None``,
-        ``(n_q, n_features)`` for ``axis=0``, ``(n_q, n_samples)`` for ``axis=1``.
+        One result per value of ``q``.
+
+    Shapes
+    ------
+    ``x`` is ``(n,)`` or ``(n_samples, n_features)``; ``q`` is a scalar or ``(n_q,)``.
+    Scalar ``q``: output is a scalar for ``axis=None``, ``(n_features,)`` for
+    ``axis=0`` and ``(n_samples,)`` for ``axis=1``. A ``q`` of shape ``(n_q,)``
+    adds a leading axis: ``(n_q,)``, ``(n_q, n_features)`` or ``(n_q, n_samples)``.
 
     Raises
     ------
@@ -349,6 +376,11 @@ def histogram(x, bins=10, range=None, density=False, nan_policy="omit"):
         Bin ``i`` covers ``[edges[i], edges[i+1])``. The last bin is closed on
         both sides, so a value equal to ``edges[-1]`` is counted in it.
 
+    Shapes
+    ------
+    ``x`` is any shape (flattened); ``counts`` is ``(n_bins,)`` and ``edges`` is
+    ``(n_bins + 1,)``.
+
     Raises
     ------
     ValueError
@@ -378,24 +410,27 @@ def histogram(x, bins=10, range=None, density=False, nan_policy="omit"):
 class RunningStats:
     """Single-pass mean and variance using Welford's online algorithm.
 
-    Data arrives in pieces through :meth:`update`, and only the count, the
-    running mean and the running sum of squared deviations are kept, so memory
-    use does not grow with the number of samples seen. The constructor takes
-    no parameters; results are read from :attr:`count`, :attr:`mean`,
-    :meth:`variance` and :meth:`std`.
+    Feed data in chunks with ``update``. Only the count, the running mean and
+    the running sum of squared deviations are stored, so memory does not grow
+    with the number of samples. Read the results from ``count``, ``mean``,
+    ``variance()`` and ``std()``.
+
+    Shapes
+    ------
+    ``update(x)``: x is ``()``, ``(b,)`` or ``(b, n_features)``.
+    ``mean``, ``variance()``, ``std()``: a scalar for scalar samples, else
+    ``(n_features,)``.
 
     Notes
     -----
-    Welford's recurrence for one new sample ``x`` is::
+    Welford's update for one new sample ``x`` is::
 
         n += 1;  delta = x - mean;  mean += delta / n;  m2 += delta * (x - mean)
 
-    :meth:`update` applies the batch form of the same recurrence (Chan, Golub
-    and LeVeque), which is identical for a batch of one and lets a whole chunk
-    be absorbed with vectorised NumPy instead of a Python loop. Unlike the
-    textbook ``mean(x**2) - mean(x)**2``, it never subtracts two large,
-    nearly equal numbers, so it stays accurate when the mean is large
-    relative to the spread.
+    ``update`` uses the batch version of this formula, so a whole chunk is
+    handled with NumPy instead of a Python loop. It stays accurate when the
+    mean is large compared to the spread, where ``mean(x**2) - mean(x)**2``
+    does not.
 
     Time O(b * n_features) per update of b samples; space O(n_features).
 
@@ -418,14 +453,17 @@ class RunningStats:
         Parameters
         ----------
         x : array_like, shape (), (b,) or (b, n_features)
-            Axis 0 is always the sample axis: a scalar is one sample, a 1-D
-            array is ``b`` scalar samples, a 2-D array is ``b`` samples of
-            ``n_features`` each. Pass one multi-feature sample as ``row[None, :]``.
+            Axis 0 is the sample axis: a 1-D array is ``b`` single-value
+            samples, a 2-D array is ``b`` samples of ``n_features`` values.
 
         Returns
         -------
         self : RunningStats
             So calls can be chained.
+
+        Shapes
+        ------
+        ``x`` is ``()``, ``(b,)`` or ``(b, n_features)``; returns ``self``.
 
         Raises
         ------
@@ -438,7 +476,7 @@ class RunningStats:
         Notes
         -----
         Time O(b * n_features), space O(b * n_features) for the deviations.
-        An empty batch is a no-op.
+        An empty batch is ignored.
         """
         batch = np.atleast_1d(_as_float(x))
         if np.isnan(batch).any():
@@ -478,7 +516,11 @@ class RunningStats:
         Returns
         -------
         int
-            0 before the first non-empty :meth:`update`.
+            0 before any samples are added.
+
+        Shapes
+        ------
+        Output is a scalar.
 
         Notes
         -----
@@ -492,8 +534,12 @@ class RunningStats:
 
         Returns
         -------
-        float or ndarray, shape (n_features,)
-            A float for scalar samples. Matches ``np.mean(all_samples, axis=0)``.
+        float or ndarray
+            Same as ``np.mean(all_samples, axis=0)``.
+
+        Shapes
+        ------
+        Output is a scalar for scalar samples, else ``(n_features,)``.
 
         Raises
         ------
@@ -517,8 +563,12 @@ class RunningStats:
 
         Returns
         -------
-        float or ndarray, shape (n_features,)
-            Matches ``np.var(all_samples, axis=0, ddof=ddof)``.
+        float or ndarray
+            Same as ``np.var(all_samples, axis=0, ddof=ddof)``.
+
+        Shapes
+        ------
+        Output is a scalar for scalar samples, else ``(n_features,)``.
 
         Raises
         ------
@@ -535,7 +585,7 @@ class RunningStats:
         return (m2 / (self._n - ddof))[()] #turns a 0-d array into a plain float
 
     def std(self, ddof=0):
-        """Running standard deviation: the square root of :meth:`variance`.
+        """Running standard deviation (the square root of ``variance``).
 
         Parameters
         ----------
@@ -544,8 +594,12 @@ class RunningStats:
 
         Returns
         -------
-        float or ndarray, shape (n_features,)
-            Matches ``np.std(all_samples, axis=0, ddof=ddof)``.
+        float or ndarray
+            Same as ``np.std(all_samples, axis=0, ddof=ddof)``.
+
+        Shapes
+        ------
+        Output is a scalar for scalar samples, else ``(n_features,)``.
 
         Raises
         ------

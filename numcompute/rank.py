@@ -43,6 +43,10 @@ def rank(data, method="average"):
         float64 for 'average', integer for 'dense' and 'ordinal'. An empty
         input gives an empty output.
 
+    Shapes
+    ------
+    ``data`` is ``(n,)``; output is ``(n,)``.
+
     Raises
     ------
     ValueError
@@ -104,8 +108,13 @@ def percentile(data, q, interpolation="linear"):
 
     Returns
     -------
-    float or ndarray of float, shape ``q.shape``
-        A scalar if ``q`` is a scalar.
+    float or ndarray of float
+        The percentile(s).
+
+    Shapes
+    ------
+    ``data`` is ``(n,)``; output has the same shape as ``q`` (a scalar for a
+    scalar ``q``).
 
     Raises
     ------
@@ -118,9 +127,9 @@ def percentile(data, q, interpolation="linear"):
     Notes
     -----
     Time O(n log n + m) for n data points and m percentiles, space O(n + m).
-    The percentile sits at fractional position ``q / 100 * (n - 1)`` of the
-    sorted data, so for ``[1, 2, 3, 4]`` and ``q=40`` the position is 1.2:
-    linear 2.2, lower 2, higher 3, midpoint 2.5.
+    The percentile sits at position ``q * (n - 1) / 100`` in the sorted data.
+    For ``[1, 2, 3, 4]`` and ``q=40`` that is 1.2, giving linear 2.2, lower 2,
+    higher 3 and midpoint 2.5.
     """
     if interpolation not in _INTERPOLATIONS:
         raise ValueError(

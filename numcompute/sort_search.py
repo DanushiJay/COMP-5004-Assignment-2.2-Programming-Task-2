@@ -38,23 +38,26 @@ def stable_sort(a, axis=-1):
     a : array_like, any shape
         Array to be sorted.
     axis : int, default -1
-        Axis to sort along. For a 2-D array, ``axis=0`` sorts each column
-        (features) and ``axis=1`` sorts each row (samples).
-        The default is -1, which sorts along the last axis.
+        Axis to sort along (the last axis by default). For 2-D input,
+        ``axis=0`` sorts each column and ``axis=1`` sorts each row.
 
     Returns
     -------
-    sorted_array : ndarray, same shape and dtype as ``a``
-        A sorted copy. NaNs are placed last.
+    sorted_array : ndarray
+        A sorted copy, same dtype as ``a``. NaNs are placed last.
+
+    Shapes
+    ------
+    ``a`` is any shape; output has the same shape as ``a``.
 
     Raises
     ------
     ValueError
-        If ``axis`` is out of bounds (including any axis on a 0-d input).
+        If ``axis`` is out of bounds.
 
     Notes
     -----
-    Time O(n log n) per sorted lane, space O(n).
+    Time O(n log n), space O(n).
     """
     return np.sort(np.asarray(a), axis=axis, kind="stable")
 
@@ -67,19 +70,23 @@ def multi_key_sort(X, keys, return_indices=False):
     X : array_like, shape (n_samples, n_features)
         Array to be sorted.
     keys : int or sequence of int, shape (n_keys,)
-        Column indices, primary key first. Later keys break ties in earlier keys.
-        Rows equal on every key keep their input order.
-        Supports negative indexing.
+        Columns to sort by, most important first; later keys break ties.
+        Rows equal on every key keep their input order. Negative indices
+        count from the end.
     return_indices : bool, default False
         Also return the row permutation.
 
     Returns
     -------
-    X_sorted : ndarray, shape (n_samples, n_features)
+    X_sorted : ndarray
         A sorted copy of ``X``.
-    order : ndarray of int, shape (n_samples,)
-        The row indices that would sort ``X``.
-        Only if ``return_indices``; ``X_sorted == X[order]``.
+    order : ndarray of int
+        Only if ``return_indices``: the row indices, so ``X_sorted == X[order]``.
+
+    Shapes
+    ------
+    ``X`` is ``(n_samples, n_features)`` and ``keys`` is ``(n_keys,)``;
+    ``X_sorted`` is ``(n_samples, n_features)`` and ``order`` is ``(n_samples,)``.
 
     Raises
     ------
@@ -127,9 +134,14 @@ def topk(values, k, largest=True, return_indices=True):
 
     Returns
     -------
-    top : ndarray, shape (k,)
-    indices : ndarray of int, shape (k,)
-        Only if ``return_indices``; ``top == values[indices]``.
+    top : ndarray
+        The selected values.
+    indices : ndarray of int
+        Only if ``return_indices``: their positions, so ``top == values[indices]``.
+
+    Shapes
+    ------
+    ``values`` is ``(n,)``; ``top`` and ``indices`` are both ``(k,)``.
 
     Raises
     ------
@@ -176,6 +188,10 @@ def quickselect(values, k, seed=None):
     scalar
         Equal to ``np.sort(values)[k]``.
 
+    Shapes
+    ------
+    ``values`` is ``(n,)``; output is a scalar.
+
     Raises
     ------
     ValueError
@@ -218,11 +234,16 @@ def binary_search(sorted_array, x):
 
     Returns
     -------
-    index : int, or ndarray of int with shape ``x.shape``
-        Leftmost position at which ``x`` could be inserted to keep the array
-        sorted, in ``[0, n]``. If ``x`` is present this is its first occurrence.
-    exists : bool, or ndarray of bool with shape ``x.shape``
+    index : int or ndarray of int
+        Leftmost position where ``x`` could be inserted and keep the array
+        sorted, in ``[0, n]``. If ``x`` is present, this is its first occurrence.
+    exists : bool or ndarray of bool
         Whether ``x`` is in the array.
+
+    Shapes
+    ------
+    ``sorted_array`` is ``(n,)``; ``index`` and ``exists`` have the same shape
+    as ``x`` (scalars for a scalar ``x``).
 
     Raises
     ------
@@ -231,8 +252,8 @@ def binary_search(sorted_array, x):
 
     Notes
     -----
-    Time O(log n) per searched value, space O(1) per searched value. Uses
-    ``np.searchsorted`` (a binary search) twice.
+    Time O(log n) per searched value, space O(1) per searched value.
+    Uses ``np.searchsorted`` twice.
     """
     a = _as_1d(sorted_array, "sorted_array")
     index = np.searchsorted(a, x, side="left")
