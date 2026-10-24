@@ -32,5 +32,5 @@ Generative AI assistant was used for:
 
 - breaking the assignment down into tasks and planning the work and commits.
 - brainstorming design and test cases.
-- Discuss and explore the structure of some modules and their corresponding tests.
+- discuss and explore the structure of some modules and their corresponding tests.
 - generating the NumPy-style docstring format used in the code comments.
