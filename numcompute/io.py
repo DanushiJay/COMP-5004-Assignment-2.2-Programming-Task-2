@@ -1,3 +1,13 @@
+"""Read CSV files into NumPy arrays.
+
+This module can load a whole file at once, read a big file in chunks, or
+split a file that has both numbers and text into two arrays.
+
+Limitation:
+Quoted values that contain a comma, such as "Smith, John",
+are not supported. The reader splits on every comma.
+"""
+
 import os
 from itertools import islice
 import numpy as np
@@ -165,7 +175,7 @@ def load_csv(path, delimiter=",", skip_header=0, missing="fill",
 def iter_csv_chunks(path, chunk_size=10_000, delimiter=",", skip_header=0,
                     missing="fill", fill_value=np.nan, dtype=float,
                     missing_values=DEFAULT_MISSING, encoding="utf-8"):
-    """Stream a CSV file as 2-D arrays of at most ``chunk_size`` rows.
+    """Read a large CSV file in pieces of at most ``chunk_size`` rows.
 
     Only one chunk is held in memory at a time. Parameters are as in
     ``load_csv``. With ``missing="skip"`` a chunk can contain fewer than
@@ -207,9 +217,12 @@ def iter_csv_chunks(path, chunk_size=10_000, delimiter=",", skip_header=0,
         _skip_header_lines(f, skip_header)
         ncols = None
         while True:
-            lines = _data_lines(list(islice(f, chunk_size)))
+            raw = list(islice(f, chunk_size))
+            if not raw:
+                break  # end of file
+            lines = _data_lines(raw)
             if not lines:
-                break
+                continue  # a block of blank or comment lines; keep reading
             if ncols is None:
                 ncols = _n_columns(lines[0], delimiter)
             chunk = _parse(lines, delimiter, dtype, missing, fill_value,
@@ -257,7 +270,7 @@ def read_header(path, delimiter=",", line=0, encoding="utf-8"):
 
 def split_columns(table, numeric_cols, categorical_cols,
                   missing_values=DEFAULT_MISSING):
-    """Split a string table into a float block and a category block.
+    """Split a string table into a block of numbers and a block of categories.
 
     Parameters
     ----------
@@ -311,7 +324,7 @@ def split_columns(table, numeric_cols, categorical_cols,
 def load_mixed_csv(path, numeric_cols, categorical_cols, delimiter=",",
                    skip_header=0, missing_values=DEFAULT_MISSING,
                    encoding="utf-8"):
-    """Read a mixed CSV and return ``(X_num, X_cat)``.
+    """Read a CSV that mixes numbers and text and return ``(X_num, X_cat)``.
 
     Parameters
     ----------
