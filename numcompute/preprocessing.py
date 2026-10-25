@@ -1,7 +1,24 @@
+"""This module is for preparing data: scalers, an imputer and a one-hot encoder.
+
+Every class works the same way:
+
+    fit(X)            learns from the data and returns the object itself
+    transform(X)      returns a new, changed copy of the data
+    fit_transform(X)  does both steps in one call
+
+``StandardScaler`` and ``MinMaxScaler`` ignore NaN when learning and leave
+NaN as it is in the output. A column that is all NaN gets neutral values
+(mean 0 and scale 1, or min 0 and max 1) and stays NaN. To remove NaN,
+run ``SimpleImputer`` first.
+
+``SimpleImputer`` fills in the NaN values.
+
+``OneHotEncoder`` does not accept NaN as a category. ``fit`` raises an
+error, and at ``transform`` time a NaN is treated as an unseen category.
+"""
+
 import warnings
-
 import numpy as np
-
 from .utils import as_float_array
 
 __all__ = [
@@ -82,6 +99,7 @@ def _nan_stat(func, X):
 
 class StandardScaler(_Transformer):
     """Z-score standardisation: ``(X - mean) / std`` per feature.
+    Every column ends up centred on 0 with a standard deviation of 1.
 
     Attributes
     ----------
@@ -95,7 +113,7 @@ class StandardScaler(_Transformer):
     """
 
     def fit(self, X):
-        """Learn per-feature mean and std (NaN ignored).
+        """Learn the mean and standard deviation of each feature.
 
         Parameters
         ----------
@@ -127,7 +145,7 @@ class StandardScaler(_Transformer):
         return self
 
     def transform(self, X):
-        """Standardise ``X`` with the fitted statistics.
+        """Standardise ``X`` using the mean and std learned in ``fit``.
 
         Parameters
         ----------
@@ -185,7 +203,7 @@ class StandardScaler(_Transformer):
 
 
 class MinMaxScaler(_Transformer):
-    """Linearly rescale each feature to ``feature_range`` (default (0, 1)).
+    """Rescale each feature to a fixed range, 0 to 1 by default.
 
     Parameters
     ----------
@@ -222,7 +240,8 @@ class MinMaxScaler(_Transformer):
         self.feature_range = (low, high)
 
     def fit(self, X):
-        """Learn per-feature min and max (NaN ignored).
+        """Learn the smallest and largest value of each feature.
+        NaN values are ignored.
 
         Parameters
         ----------
@@ -258,7 +277,8 @@ class MinMaxScaler(_Transformer):
         return self
 
     def transform(self, X):
-        """Rescale ``X`` into ``feature_range`` (unseen values may exceed it).
+        """Rescale ``X`` into ``feature_range``.
+        Values not seen during ``fit`` may fall outside the range.
 
         Parameters
         ----------
@@ -384,7 +404,7 @@ class SimpleImputer(_Transformer):
         return self
 
     def transform(self, X):
-        """Fill NaN entries of ``X``.
+        """Replace the NaN entries of ``X`` with the learned values.
 
         Parameters
         ----------
@@ -416,11 +436,11 @@ class SimpleImputer(_Transformer):
 
 
 class OneHotEncoder(_Transformer):
-    """One-hot encode categorical features (dense float output).
+    """Turn each category into its own 0/1 column (dense float output).
 
-    Categories may be strings or numbers. Within each feature they are
-    sorted (numbers numerically, strings alphabetically) and the output is
-    the per-feature blocks side by side in input-column order. Numeric
+    Categories can be strings or numbers. Within each feature they are sorted
+    (numbers numerically, strings alphabetically), and the 0/1 columns of each
+    feature are placed side by side in the original column order. Numeric
     categories compare by value, so ``1`` and ``1.0`` are the same
     category. Object arrays are treated as strings. An encoder fitted on
     text rejects numbers and vice versa (``ValueError``).

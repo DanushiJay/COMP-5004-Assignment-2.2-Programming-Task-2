@@ -1,3 +1,17 @@
+"""Numerically stable math helpers.
+
+as_float_array : turn input into floats, but reject text and None.
+logsumexp, log_softmax, softmax : safe even for very large numbers
+    (up to about +-1e4), because the largest value is subtracted first.
+sigmoid, relu : activation functions. ``sigmoid`` uses ``exp(-|x|)``, so
+    it never overflows.
+pairwise_diff, euclidean_distance, manhattan_distance : distances between
+    every pair of rows, with no Python loop.
+batch_iter : hands out data in small batches, one at a time. This is one
+    of the few places a loop is allowed.
+
+"""
+
 import numpy as np
 
 __all__ = [
@@ -15,13 +29,13 @@ __all__ = [
 
 
 def as_float_array(x, name="x"):
-    """Convert input to a float64 ndarray, rejecting non-numeric data.
+    """Convert input to a float array, refusing non-numeric data.
 
     Parameters
     ----------
     x : array_like
         Numeric input (bool, int or float). Strings and ``None`` are
-        rejected rather than silently converted.
+        rejected instead of being converted quietly.
     name : str, default "x"
         Name used in error messages.
 
@@ -53,8 +67,9 @@ def as_float_array(x, name="x"):
 def logsumexp(x, axis=None, keepdims=False):
     """Compute ``log(sum(exp(x)))`` without overflow or underflow.
 
-    Uses the max-shift identity ``m + log(sum(exp(x - m)))``. A non-finite
-    max (all ``-inf``) is replaced by 0 so the result is ``-inf``, not NaN.
+    Calculating this direcly overflows for large numbers. Instead the 
+    largest value ``m`` is subtracted first: ``m+ log9sum(exp(x-m)))```
+    If every value is ``-inf``, the result is ``-inf`` rather than NaN.
 
     Parameters
     ----------
@@ -84,6 +99,7 @@ def logsumexp(x, axis=None, keepdims=False):
     Time O(size), space O(size) for the shifted temporary. Empty input
     gives ``-inf`` (the log of an empty sum).
     """
+
     x = as_float_array(x)
     if x.size == 0:
         shape = np.sum(x, axis=axis, keepdims=keepdims)
@@ -102,14 +118,14 @@ def logsumexp(x, axis=None, keepdims=False):
 
 
 def log_softmax(x, axis=-1):
-    """Stable ``log(softmax(x))`` along ``axis``.
+    """Log of the softmax probabilities along ``axis``, computed safely.
 
     Parameters
     ----------
     x : array_like
         Numeric logits.
     axis : int, default -1
-        Axis normalised to sum to 1 after exponentiation.
+        Axis alog which the probabilities sum up to 1.
 
     Returns
     -------
@@ -132,7 +148,9 @@ def log_softmax(x, axis=-1):
 
 
 def softmax(x, axis=-1):
-    """Max-shifted softmax; each slice along ``axis`` sums to 1.
+    """Turn scores into probabilities that add up to 1 along ``axis``.
+
+    The largest value is subtracted first, so large inputes do not overflow.
 
     Parameters
     ----------
@@ -163,7 +181,8 @@ def softmax(x, axis=-1):
 def sigmoid(x):
     """Numerically stable logistic function ``1 / (1 + exp(-x))``.
 
-    Uses ``exp(-|x|)`` so the exponent is never large and positive.
+    Uses ``exp(-|x|)`` so the exponent is never large and positive, which
+    keeps it safe for very large or very small inputs.
 
     Parameters
     ----------
@@ -192,7 +211,7 @@ def sigmoid(x):
 
 
 def relu(x):
-    """Rectified linear unit ``max(x, 0)``; NaN is propagated.
+    """Replace negative numbers with 0 ``max(x, 0)``; NaN is propagated.
 
     Parameters
     ----------
