@@ -1,11 +1,15 @@
-"""NumCompute: a modular scientific computing toolkit built on plain Python and NumPy.
+"""
+NumCompute: a modular scientific computing toolkit built on plain Python and NumPy.
 
-Submodules are importable as ``numcompute.<module>``. The top-level public API
-(names re-exported directly from ``numcompute``) is finalised at integration.
+The public API is organised by submodule: use ``numcompute.<module>``, e.g.
+``from numcompute import stats`` then ``stats.mean(X)``. 
+Names are not re-exported at the top level, which avoids clashes such as 
+the ``rank`` module and the ``rank`` function.
+
+``benchmarking`` is a development tool and is not imported here.
 """
 
 from . import (
-    benchmarking,
     io,
     metrics,
     optim,
@@ -20,7 +24,6 @@ from . import (
 __version__ = "0.1.0"
 
 __all__ = [
-    "benchmarking",
     "io",
     "metrics",
     "optim",
