@@ -278,7 +278,8 @@ def run_all(seed=0, repeat=5):
 
     Notes
     -----
-    Time and space O(n) for each benchmark, where n is the number of values.
+    Time O(n) for mean and var, O(n log n) for rank, and O(m log n) 
+    for binary_search with m queries in n values; space O(n) for each.
     """
     rng = np.random.default_rng(seed)
     X = rng.normal(size=(2000, 50))
@@ -329,7 +330,7 @@ def run_size_sweep(sizes=(1_000, 10_000, 100_000, 1_000_000), seed=0, repeat=3):
 
     Notes
     -----
-    Both versions are O(n), so the speedup should be roughly constant with input size.
+    Both versions are O(n).
     """
     rng = np.random.default_rng(seed)
     rows = []
