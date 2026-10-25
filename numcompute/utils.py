@@ -1,4 +1,4 @@
-"""Numerically stable math helpers used by the other modules.
+"""Numerically stable math helpers.
 
 as_float_array : turn input into floats, but reject text and None.
 logsumexp, log_softmax, softmax : safe even for very large numbers
