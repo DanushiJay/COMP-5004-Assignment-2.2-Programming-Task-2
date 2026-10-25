@@ -278,7 +278,7 @@ def run_all(seed=0, repeat=5):
 
     Notes
     -----
-    Takes well under a second; almost all of it is the Python loops.
+    Time and space O(n) for each benchmark, where n is the number of values.
     """
     rng = np.random.default_rng(seed)
     X = rng.normal(size=(2000, 50))
@@ -329,8 +329,7 @@ def run_size_sweep(sizes=(1_000, 10_000, 100_000, 1_000_000), seed=0, repeat=3):
 
     Notes
     -----
-    Both versions are O(n), but NumPy's fixed cost per call matters less as
-    ``n`` grows, so the speedup rises with size.
+    Both versions are O(n), so the speedup should be roughly constant with input size.
     """
     rng = np.random.default_rng(seed)
     rows = []
