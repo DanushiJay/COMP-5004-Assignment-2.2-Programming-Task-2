@@ -10,8 +10,8 @@ readme = "README.md"
 requires-python = ">=3.10"
 authors = [
     { name = "Kalana Ratnayke", email = "a3226038@adelaide.edu.au" },
-    { name = "Sanduni Galagoda", email = "a@adelaide.edu.au" },
-    { name = "Danushi Jayasekara", email = "a@adelaide.edu.au" }
+    { name = "Sanduni Galagoda", email = "a3228913@adelaide.edu.au" },
+    { name = "Danushi Jayasekara", email = "a3223630@adelaide.edu.au" }
 ]
 dependencies = ["numpy>=1.24"]
 

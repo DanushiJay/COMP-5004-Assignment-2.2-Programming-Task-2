@@ -8,13 +8,14 @@ same time complexity, using plain Python lists and loops, so the comparison
 measures vectorisation vs python loop performance.
 """
 
+import math
 import os
 import platform
 import timeit
 
 import numpy as np
 
-from . import rank, sort_search, stats
+from . import metrics, rank, sort_search, stats, utils
 
 __all__ = [
     "time_function",
@@ -256,8 +257,42 @@ def _loop_binary_search(sorted_values, queries):
     return indices, exists
 
 
+def _loop_confusion_matrix(y_true, y_pred, n_classes):
+    # Count one (true, predicted) pair at a time; labels are 0..n_classes-1.
+    cm = [[0] * n_classes for _ in range(n_classes)]
+    for t, p in zip(y_true, y_pred):
+        cm[t][p] += 1
+    return cm
+
+
+def _loop_euclidean_distance(a, b):
+    # Pairwise distances with an explicit loop over row pairs and features.
+    out = []
+    for row_a in a:
+        dists = []
+        for row_b in b:
+            total = 0.0
+            for x, y in zip(row_a, row_b):
+                diff = x - y
+                total += diff * diff
+            dists.append(math.sqrt(total))
+        out.append(dists)
+    return out
+
+
+def _loop_softmax(rows):
+    # Row by row: subtract the row maximum, exponentiate, then normalise.
+    out = []
+    for row in rows:
+        m = max(row)
+        exps = [math.exp(v - m) for v in row]
+        total = sum(exps)
+        out.append([e / total for e in exps])
+    return out
+
+
 def run_all(seed=0, repeat=5):
-    """Time the four main benchmarks on fixed random data.
+    """Time the seven main benchmarks on fixed random data.
 
     Parameters
     ----------
@@ -270,25 +305,36 @@ def run_all(seed=0, repeat=5):
     -------
     list of dict
         One ``compare`` result each for ``stats.mean``, ``stats.var``,
-        ``rank.rank`` and ``sort_search.binary_search``.
+        ``rank.rank``, ``sort_search.binary_search``,
+        ``metrics.confusion_matrix``, ``utils.euclidean_distance`` and
+        ``utils.softmax``.
 
     Shapes
     ------
-    Output has 4 entries.
+    Output has 7 entries.
 
     Notes
     -----
     Time O(n) for mean and var, O(n log n) for rank, and O(m log n) 
-    for binary_search with m queries in n values; space O(n) for each.
+    for binary_search with m queries in n values. confusion_matrix is O(n),
+    euclidean_distance O(n m d) for (n, d) and (m, d) inputs, and softmax is
+    linear in the array size; space O(n) for each, O(n m d) for the distances.
     """
     rng = np.random.default_rng(seed)
     X = rng.normal(size=(2000, 50))
     values = rng.integers(0, 500, size=5000)  # many ties
     sorted_values = np.sort(rng.integers(0, 2_000_000, size=1_000_000))
     queries = rng.integers(0, 2_000_000, size=10_000)  # some present, some not
+    y_true = rng.integers(0, 5, size=100_000)
+    y_pred = rng.integers(0, 5, size=100_000)
+    points_a = rng.normal(size=(200, 10))
+    points_b = rng.normal(size=(200, 10))
+    logits = rng.normal(size=(2000, 10))
     # Lists for the loop versions are built here, outside the timed code.
     X_list, values_list = X.tolist(), values.tolist()
     sorted_list, queries_list = sorted_values.tolist(), queries.tolist()
+    true_list, pred_list = y_true.tolist(), y_pred.tolist()
+    a_list, b_list, logits_list = points_a.tolist(), points_b.tolist(), logits.tolist()
 
     benchmarks = [
         ("stats.mean, (2000, 50), axis=0",
@@ -303,6 +349,15 @@ def run_all(seed=0, repeat=5):
         ("sort_search.binary_search, 10000 queries in 1000000 values",
          lambda: sort_search.binary_search(sorted_values, queries),
          lambda: _loop_binary_search(sorted_list, queries_list)),
+        ("metrics.confusion_matrix, 100000 samples, 5 classes",
+         lambda: metrics.confusion_matrix(y_true, y_pred, labels=np.arange(5)),
+         lambda: _loop_confusion_matrix(true_list, pred_list, 5)),
+        ("utils.euclidean_distance, (200, 10) vs (200, 10)",
+         lambda: utils.euclidean_distance(points_a, points_b),
+         lambda: _loop_euclidean_distance(a_list, b_list)),
+        ("utils.softmax, (2000, 10), axis=1",
+         lambda: utils.softmax(logits, axis=1),
+         lambda: _loop_softmax(logits_list)),
     ]
     return [compare(name, vec, loop, repeat=repeat) for name, vec, loop in benchmarks]
 
