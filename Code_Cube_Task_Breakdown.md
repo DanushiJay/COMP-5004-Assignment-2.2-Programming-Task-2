@@ -4,9 +4,9 @@
 
 | Person | Focus Area | Modules Owned |
 |---|---|---|
-| **A** | Data & Preprocessing | `utils.py`, `io.py`, `preprocessing.py` |
-| **B** | Algorithms | `sort_search.py`, `rank.py`, `stats.py` |
-| **C** | Evaluation & Optimization | `metrics.py`, `optim.py`, `pipeline.py` |
+| **Danushi** | Data & Preprocessing | `utils.py`, `io.py`, `preprocessing.py` |
+| **Kalana** | Algorithms | `sort_search.py`, `rank.py`, `stats.py`, `benchmarking.py` |
+| **Sanduni** | Evaluation & Optimization | `metrics.py`, `optim.py`, `pipeline.py` |
 
 Shared/rotating: `numcompute/__init__.py`, `benchmarking.py`, `README.md`, `demo/quickstart.ipynb`, test review.
 
@@ -52,7 +52,7 @@ Shared/rotating: `numcompute/__init__.py`, `benchmarking.py`, `README.md`, `demo
 Each person implements their own modules against the Phase 0 conventions. Unit tests are written
 alongside the code (listed per module below); Phase 2 is for finishing and hardening them.
 
-## Person A — Data & Preprocessing
+## Danushi — Data & Preprocessing
 
 ### `utils.py` (build first — others depend on it)
 - [ ] `logsumexp(x, axis=None)` — max-shifted for numerical stability
@@ -93,7 +93,7 @@ alongside the code (listed per module below); Phase 2 is for finishing and harde
 
 ---
 
-## Person B — Algorithms
+## Kalana — Algorithms
 
 ### `sort_search.py`
 - [ ] Stable sort wrapper: `np.sort(..., kind='stable')`
@@ -120,7 +120,7 @@ alongside the code (listed per module below); Phase 2 is for finishing and harde
 
 ---
 
-## Person C — Evaluation & Optimization
+## Sanduni — Evaluation & Optimization
 
 ### `metrics.py`
 - [ ] `accuracy(y_true, y_pred)`
